@@ -11,6 +11,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class MobileTimeActivity extends AppCompatActivity {
@@ -25,6 +27,12 @@ public class MobileTimeActivity extends AppCompatActivity {
 
         NfcHelper helper = new NfcHelper(this, this);
         helper.InitializeNfc();
+    }
+
+    public void onImageClick(View view)
+    {
+        ImageView imageView = (ImageView)view;
+
     }
 
     private Context context;
