@@ -3,4 +3,6 @@
 
     <string name="currentTime">Current Time:</string>
     <string name="workedTime">Worked Time:</string>
+    <string name="headerStart">Start</string>
+    <string name="headerEnd">End</string>
 </resources>
