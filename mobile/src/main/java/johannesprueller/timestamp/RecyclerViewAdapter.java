@@ -16,10 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.w3c.dom.Text;
 
+import java.util.Date;
 import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.TimeStampViewHolder> {
@@ -40,12 +43,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(TimeStampViewHolder holder, int position) {
         LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        infoParams.setMargins(8,0,0,8);
+        infoParams.setMargins(8, 0, 0, 8);
 
         SpannableString content = new SpannableString(dtf.print(timestamps.get(position).get(0).getStartTime()));
-        content.setSpan(new UnderlineSpan(),0,content.length(),0);
+        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
         holder.info.setText(content);
         holder.info.setLayoutParams(infoParams);
+
+        DateTime today = DateTime.now();
+        DateTime sum = new DateTime(today.getYear(), today.getMonthOfYear(), today.getDayOfMonth(),0,0,0);
 
         for(TimeStampItem timeStamp : timestamps.get(position))
         {
@@ -58,19 +64,52 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             params.setMargins(8,0,0,8);
 
             TextView start = new TextView(context);
-            start.setText(timedtf.print(timeStamp.getStartTime()));
+            start.setText( context.getString(R.string.headerStart) + "  " + timedtf.print(timeStamp.getStartTime()));
             start.setLayoutParams(params);
-            start.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+            start.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
             layout.addView(start);
 
             TextView end = new TextView(context);
-            end.setText(timedtf.print( timeStamp.getStartTime()));
+            if(timeStamp.getStopTime() != null) {
+                end.setText(context.getString(R.string.headerEnd) + "  " + timedtf.print(timeStamp.getStopTime()));
+                Period diff = new Period(timeStamp.getStartTime(), timeStamp.getStopTime());
+                sum = sum.plus(diff);
+            }
+            else
+            {
+                Period diff = new Period(timeStamp.getStartTime(), DateTime.now());
+                sum = sum.plus(diff);
+                end.setText( context.getString(R.string.headerEnd) + "  " + "--:--:--");
+            }
             end.setLayoutParams(params);
-            end.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+            end.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
             layout.addView(end);
 
             holder.listLayout.addView(layout);
         }
+
+        LinearLayout.LayoutParams totallayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT);
+        totallayoutParams.setLayoutDirection(LinearLayout.HORIZONTAL);
+
+        LinearLayout totalLayout = new LinearLayout(context);
+        totalLayout.setLayoutParams(totallayoutParams);
+
+        LinearLayout.LayoutParams totalParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+        totalParams.setMargins(8, 15, 0, 8);
+
+        TextView totalText = new TextView(context);
+        totalText.setLayoutParams(totalParams);
+        totalText.setText(R.string.total);
+        totalText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
+        totalLayout.addView(totalText);
+
+        TextView calcuatedTotal = new TextView(context);
+        calcuatedTotal.setLayoutParams(totalParams);
+        calcuatedTotal.setText(timedtf.print(sum));
+        calcuatedTotal.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
+        totalLayout.addView(calcuatedTotal);
+
+        holder.listLayout.addView(totalLayout);
     }
 
     @Override
@@ -95,5 +134,5 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private List<List<TimeStampItem>> timestamps;
     private Context context;
     private DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private DateTimeFormatter timedtf = DateTimeFormat.forPattern("HH:mm:ss");
+    private DateTimeFormatter timedtf = DateTimeFormat.forPattern("HH:mm");
 }
