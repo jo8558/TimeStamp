@@ -1,22 +1,22 @@
 package johannesprueller.timestamp;
 
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public class TimeStampItem {
 
-    public Date getStartTime() {
+    public DateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(DateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getStopTime() {
+    public DateTime getStopTime() {
         return stopTime;
     }
 
-    public void setStopTime(Date stopTime) {
+    public void setStopTime(DateTime stopTime) {
         this.stopTime = stopTime;
     }
 
@@ -28,7 +28,7 @@ public class TimeStampItem {
         this.id = id;
     }
 
-    private Date startTime;
-    private Date stopTime;
+    private DateTime startTime;
+    private DateTime stopTime;
     private int id;
 }

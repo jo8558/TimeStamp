@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="johannesprueller.timestamp" >
+    package="johannesprueller.timestamp">
+
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-        <activity android:name=".MobileTimeActivity" >
+        android:theme="@style/AppTheme">
+        <activity android:name=".MobileTimeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,14 +20,28 @@
         </activity>
 
         <provider
-            android:name="TimeStampContentProvider"
+            android:name=".TimeStampContentProvider"
             android:authorities="at.jo.provider.TimeStamp"
-            android:exported="false">
-        </provider>
+            android:exported="false" />
 
-
+        <activity
+            android:name=".NfcSettingActivity"
+            android:label="@string/title_activity_nfc_setting"
+            android:parentActivityName=".MobileTimeActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="johannesprueller.timestamp.MobileTimeActivity" />
+        </activity>
+        <activity
+            android:name=".TimeOverviewActivity"
+            android:label="@string/title_activity_time_overview"
+            android:parentActivityName=".MobileTimeActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="johannesprueller.timestamp.MobileTimeActivity" />
+        </activity>
     </application>
 
-    <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 </manifest>

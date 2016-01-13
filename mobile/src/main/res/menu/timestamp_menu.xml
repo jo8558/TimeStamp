@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:TimeStamp="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/nfcsetting"
+        android:title="@string/nfcSettings"/>
+    <item
+        android:id="@+id/timeoverview"
+        android:title="@string/timeOverview"
+        TimeStamp:showAsAction="always"
+        android:icon="@drawable/ic_assignment_white_48dp"
+        />
+</menu>

@@ -5,4 +5,25 @@
     <string name="workedTime">Worked Time:</string>
     <string name="headerStart">Start</string>
     <string name="headerEnd">End</string>
+
+    <string name="updateDatabaseError">Sorry, something went wrong!</string>
+
+    <string name="nfcSettings">Nfc-Settings</string>
+    <string name="timeOverview">Overview</string>
+    <string name="title_activity_nfc_setting">Nfc-Settings</string>
+
+    <string name="nfcInfo">No Nfc-Tags registered</string>
+    <string name="alertTitle">Attention</string>
+    <string name="alertMessage">Use NFC-Tag to register</string>
+    <string name="alertCancel">Cancel</string>
+    <string name="nfcRegisterSuccessful">Successfully added NFC-Tag</string>
+    <string name="nfcRegisterFailed">Sorry, NFC-Tag is not registered, please try it again!</string>
+    <string name="nfcRegisterAlreadyExisiting">NFC-Tag is already registered</string>
+    <string name="title_activity_time_overview">Overview</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="tabDay">Day</string>
+    <string name="tabWeek">Week</string>
+    <string name="tabMonth">Month</string>
 </resources>

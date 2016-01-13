@@ -25,25 +25,26 @@
         android:layout_height="wrap_content"
         android:format12Hour="hh:mm:ss AA"
         android:format24Hour="HH:mm:ss"
-        android:paddingTop="15dp"
-        android:textSize="65dp"
+        android:paddingTop="8dp"
+        android:textSize="50dp"
         android:layout_centerHorizontal="true"
         android:textAlignment="center"
         android:clickable="true"
         android:onClick="onCurrentTimeClick"
         />
 
-    <Chronometer
+    <TextView
         android:id="@+id/timerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="15dp"
-        android:textSize="65dp"
+        android:paddingTop="8dp"
+        android:textSize="50dp"
         android:layout_centerHorizontal="true"
         android:textAlignment="center"
         android:visibility="gone"
         android:clickable="true"
         android:onClick="onWorkingTimeClick"
+        android:textColor="@android:color/black"
         />
 
     <ListView

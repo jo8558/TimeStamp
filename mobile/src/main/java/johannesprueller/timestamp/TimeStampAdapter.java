@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
@@ -45,7 +47,7 @@ public class TimeStampAdapter extends BaseAdapter{
         TimeStampItem item = itemList.get(position);
 
         TextView startTime = (TextView)convertView.findViewById(R.id.startTime);
-        startTime.setText(sdf.format(item.getStartTime()));
+        startTime.setText(dtf.print(item.getStartTime()));
 
         TextView endTime = (TextView)convertView.findViewById(R.id.endTime);
         if(item.getStopTime() == null) {
@@ -53,7 +55,7 @@ public class TimeStampAdapter extends BaseAdapter{
         }
         else
         {
-            endTime.setText(sdf.format(item.getStopTime()));
+            endTime.setText(dtf.print(item.getStopTime()));
         }
 
         return convertView;
@@ -62,5 +64,5 @@ public class TimeStampAdapter extends BaseAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
     private List<TimeStampItem> itemList;
-    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    private DateTimeFormatter dtf = DateTimeFormat.forPattern("HH:mm:ss");
 }

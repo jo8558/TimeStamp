@@ -14,29 +14,33 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class TimeStampContentProvider extends ContentProvider {
 
     static final String PROVIDER_NAME = "at.jo.provider.TimeStamp";
-    static final String URL = "content://" + PROVIDER_NAME + "/timestamp";
-    static final Uri CONTENT_URI = Uri.parse(URL);
+    static final String TIMESTAMP_URL = "content://" + PROVIDER_NAME + "/timestamp";
+    static final String NFC_URL = "content://" + PROVIDER_NAME + "/nfc";
+    static final Uri CONTENT_TIMESTAMP_URI = Uri.parse(TIMESTAMP_URL);
+    static final Uri CONTENT_NFC_URI = Uri.parse(NFC_URL);
 
     static final String _ID = "_id";
     static final String START = "startTime";
     static final String END = "endTime";
 
+    static final String NFCUID = "nfcUid";
+
     private static HashMap<String, String> TIMESTAMP_PROJECTION_MAP;
 
     static final int TIMESTAMP = 1;
+    static final int NFC = 2;
 
     static final UriMatcher uriMatcher;
 
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(PROVIDER_NAME, "timestamp", TIMESTAMP);
+        uriMatcher.addURI(PROVIDER_NAME, "nfc", NFC);
     }
 
     @Override
@@ -56,18 +60,18 @@ public class TimeStampContentProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(TIMESTAMP_TABLE_NAME);
-
-        switch (uriMatcher.match(uri)) {
+        queryBuilder.setDistinct(true);
+        switch (uriMatcher.match(uri))
+        {
             case TIMESTAMP:
-                queryBuilder.setProjectionMap(TIMESTAMP_PROJECTION_MAP);
+                queryBuilder.setTables(TIMESTAMP_TABLE_NAME);
+                if ((sortOrder == null) || sortOrder.equals("")) {
+                    sortOrder = START;
+                }
                 break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-        if ((sortOrder == null) || sortOrder.equals("")) {
-            sortOrder = START;
+            case NFC:
+                queryBuilder.setTables(NFC_TABLE_NAME);
+                break;
         }
 
         Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
@@ -85,6 +89,8 @@ public class TimeStampContentProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case TIMESTAMP:
                 return "vnd.android.cursor.dir/vnd.timestamp";
+            case NFC:
+                return "vnd.android.cursor.dir/vnd.nfc";
             default:
                 throw new IllegalArgumentException("Unknown URI" + uri);
         }
@@ -95,13 +101,22 @@ public class TimeStampContentProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, ContentValues values) {
         long rowID = 0;
         try {
-            rowID = db.insertOrThrow(TIMESTAMP_TABLE_NAME, "", values);
+            switch (uriMatcher.match(uri))
+            {
+                case TIMESTAMP:
+                    rowID = db.insertOrThrow(TIMESTAMP_TABLE_NAME, "", values);
+                    break;
+                case NFC:
+                    rowID = db.insertOrThrow(NFC_TABLE_NAME, "", values);
+                    break;
+            }
+
         } catch (android.database.SQLException e) {
             e.printStackTrace();
         }
 
         if (rowID > 0) {
-            Uri newUri = ContentUris.withAppendedId(CONTENT_URI, rowID);
+            Uri newUri = ContentUris.withAppendedId(CONTENT_TIMESTAMP_URI, rowID);
 
             if (resolver != null) {
                 resolver.notifyChange(newUri, null);
@@ -118,6 +133,9 @@ public class TimeStampContentProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case TIMESTAMP:
                 count = db.delete(TIMESTAMP_TABLE_NAME, selection, selectionArgs);
+                break;
+            case NFC:
+                count = db.delete(NFC_TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -137,6 +155,9 @@ public class TimeStampContentProvider extends ContentProvider {
             case TIMESTAMP:
                 count = db.update(TIMESTAMP_TABLE_NAME, values, selection, selectionArgs);
                 break;
+            case NFC:
+                count = db.update(NFC_TABLE_NAME, values, selection, selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI ", null);
         }
@@ -154,11 +175,15 @@ public class TimeStampContentProvider extends ContentProvider {
     private SQLiteDatabase db;
     static final String DATABASE_NAME = "TimeStamp";
     static final String TIMESTAMP_TABLE_NAME = "Timestamp";
-    static final int DATABASE_VERSION = 1;
+    static final String NFC_TABLE_NAME = "NFCTAG";
+    static final int DATABASE_VERSION = 2;
     static final String CREATE_DB_TABLE = "CREATE TABLE " + TIMESTAMP_TABLE_NAME +
             "( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             " startTime TEXT, " +
             " endTime TEXT);";
+    static final String CREATE_NFC_TABLE = "CREATE TABLE " + NFC_TABLE_NAME +
+            "(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            " nfcUid TEXT);";
 
     private static class TimeStampDatabaseHelper extends SQLiteOpenHelper {
 
@@ -174,11 +199,14 @@ public class TimeStampContentProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             int upgradeTo = oldVersion + 1;
-//            while (upgradeTo <= newVersion) {
-//                switch (upgradeTo) {
-//                    // TODO: 23.12.2015 implement case for each new updateversion! source: http://blog.adamsbros.org/2012/02/28/upgrade-android-sqlite-database/
-//                }
-//            }
+            while (upgradeTo <= newVersion) {
+                switch (upgradeTo) {
+                    case 2:
+                        db.execSQL(CREATE_NFC_TABLE);
+                        break;
+                }
+                upgradeTo++;
+            }
         }
     }
 }
