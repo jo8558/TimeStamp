@@ -33,29 +33,39 @@ public class NfcHelper {
 
     }
 
+    public void HandleTagFromIntent(Tag tag)
+    {
+        SendMessage(tag);
+    }
+
+    private void SendMessage(Tag tag)
+    {
+        Message message = handler.obtainMessage(0, bytesToHex(tag.getId()));
+        message.sendToTarget();
+    }
+
+    private String bytesToHex(byte[] bytes)
+    {
+        char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        char[] hexChars = new char[bytes.length * 2];
+        int v;
+        for ( int j = 0; j < bytes.length; j++ ) {
+            v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     private class NfcCallcback implements NfcAdapter.ReaderCallback {
 
 
         @Override
         public void onTagDiscovered(Tag tag) {
-
-
-            Message message = handler.obtainMessage(0, bytesToHex(tag.getId()));
-            message.sendToTarget();
+            SendMessage(tag);
         }
 
-        private String bytesToHex(byte[] bytes)
-        {
-            char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-            char[] hexChars = new char[bytes.length * 2];
-            int v;
-            for ( int j = 0; j < bytes.length; j++ ) {
-                v = bytes[j] & 0xFF;
-                hexChars[j * 2] = hexArray[v >>> 4];
-                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-            }
-            return new String(hexChars);
-        }
+
     }
 
 

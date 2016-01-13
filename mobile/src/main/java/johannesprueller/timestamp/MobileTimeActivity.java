@@ -1,9 +1,13 @@
 package johannesprueller.timestamp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +18,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -26,22 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MobileTimeActivity extends AppCompatActivity {
-
-    private Handler handler;
-    private Handler timerHandler;
-    private TimerTask timerRunnable;
-    private DateTime workedTime;
-    private TextView timeInfo;
-    private TextClock textClock;
-    private ListView listView;
-    private TextView timerView;
-    private List<TimeStampItem> timeStampItemList;
-    private TimeStampItem currentItem;
-    private TimeStampAdapter timeStampAdapter;
-    private DateTime today;
-    private DatabaseHelper dbHelper;
-    private boolean working;
-    private DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,20 +70,33 @@ public class MobileTimeActivity extends AppCompatActivity {
                         }
                     }
                 } else if (message.what == 1) {
-                    GetNewTimerLoaderTask().execute();
+                    handleAsyncTimeLoaderResult();
                 }
             }
         };
 
 
-        NfcHelper helper = new NfcHelper(this, handler);
-        helper.InitializeNfc();
+        nfcHelper = new NfcHelper(this, handler);
+        nfcHelper.InitializeNfc();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        GetNewTimerLoaderTask().execute();
+        handleAsyncTimeLoaderResult();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(getIntent().getAction()))
+        {
+            Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            if(nfcHelper != null)
+            {
+                nfcHelper.HandleTagFromIntent(tag);
+            }
+        }
     }
 
     @Override
@@ -181,7 +183,8 @@ public class MobileTimeActivity extends AppCompatActivity {
         textClock.setVisibility(View.VISIBLE);
     }
 
-    private void handleAsyncTimeLoaderResult(List<TimeStampItem> output) {
+    private void handleAsyncTimeLoaderResult() {
+        List<TimeStampItem> output = dbHelper.LoadTimeStampItemsForDate(DateTime.now());
         if (output != null && output.size() > 0) {
             if (timeStampItemList.size() == 0) {
                 createHeader();
@@ -247,12 +250,29 @@ public class MobileTimeActivity extends AppCompatActivity {
         timerHandler.removeCallbacks(timerRunnable);
     }
 
-    private AsyncTimeLoaderTask GetNewTimerLoaderTask() {
-        return new AsyncTimeLoaderTask(this, new AsyncTimeLoaderTask.AsyncResponse() {
-            @Override
-            public void processFinish(List<TimeStampItem> output) {
-                handleAsyncTimeLoaderResult(output);
-            }
-        });
-    }
+//    private AsyncTimeLoaderTask GetNewTimerLoaderTask() {
+//        return new AsyncTimeLoaderTask(this, new AsyncTimeLoaderTask.AsyncResponse() {
+//            @Override
+//            public void processFinish(List<TimeStampItem> output) {
+//                handleAsyncTimeLoaderResult(output);
+//            }
+//        });
+//    }
+
+    private Handler handler;
+    private Handler timerHandler;
+    private TimerTask timerRunnable;
+    private DateTime workedTime;
+    private TextView timeInfo;
+    private TextClock textClock;
+    private ListView listView;
+    private TextView timerView;
+    private List<TimeStampItem> timeStampItemList;
+    private TimeStampItem currentItem;
+    private TimeStampAdapter timeStampAdapter;
+    private DateTime today;
+    private DatabaseHelper dbHelper;
+    private boolean working;
+    private NfcHelper nfcHelper;
+    private DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 }

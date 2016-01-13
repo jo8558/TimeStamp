@@ -14,9 +14,13 @@
         <activity android:name=".MobileTimeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            <meta-data android:name="android.nfc.action.TAG_DISCOVERED"
+                android:resource="@xml/tech_list"/>
         </activity>
 
         <provider
