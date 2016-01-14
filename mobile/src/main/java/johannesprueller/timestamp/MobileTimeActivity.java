@@ -250,15 +250,6 @@ public class MobileTimeActivity extends AppCompatActivity {
         timerHandler.removeCallbacks(timerRunnable);
     }
 
-//    private AsyncTimeLoaderTask GetNewTimerLoaderTask() {
-//        return new AsyncTimeLoaderTask(this, new AsyncTimeLoaderTask.AsyncResponse() {
-//            @Override
-//            public void processFinish(List<TimeStampItem> output) {
-//                handleAsyncTimeLoaderResult(output);
-//            }
-//        });
-//    }
-
     private Handler handler;
     private Handler timerHandler;
     private TimerTask timerRunnable;
